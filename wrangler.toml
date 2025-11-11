@@ -13,10 +13,10 @@ id = "cbd9a8c493214334bc07af5cc636102d"
 
 # Environment variables
 [vars]
-GAMEHUB_EMAIL = "orangenoble@tiffincrane.com"
+GAMEHUB_EMAIL = "86lucille@2200freefonts.com"
 GAMEHUB_API_BASE = "https://landscape-api.vgabc.com"
-MAILTM_EMAIL = "orangenoble@tiffincrane.com"
-MAILTM_PASSWORD = "b4pnZXk+Dl"
+MAILTM_EMAIL = "86lucille@2200freefonts.com"
+MAILTM_PASSWORD = "*A^ZhvalXi"
 MAILTM_API_BASE = "https://api.mail.tm"
 GAMEHUB_CLIENTPARAMS = "5.1.0|16|en|SM-S928B|3120 * 1440|gamehub_android|gamehub_android_Official|samsung|||||||||com.antutu.ABenchMark||qcom"
 GAMEHUB_SECRET_KEY = "all-egg-shell-y7ZatUDk"
