@@ -1,0 +1,22 @@
+name = "gamehub-lite-token-refresher"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Cron trigger - runs every 4 hours
+[triggers]
+crons = ["0 */4 * * *"]
+
+# KV namespace for storing tokens
+[[kv_namespaces]]
+binding = "TOKEN_STORE"
+id = "534c5e623d444d0e9ae656a0f04227cb"
+
+# Environment variables
+[vars]
+GAMEHUB_EMAIL = "orangenoble@tiffincrane.com"
+GAMEHUB_API_BASE = "https://landscape-api.vgabc.com"
+MAILTM_EMAIL = "orangenoble@tiffincrane.com"
+MAILTM_PASSWORD = "b4pnZXk+Dl"
+MAILTM_API_BASE = "https://api.mail.tm"
+GAMEHUB_CLIENTPARAMS = "5.1.0|16|en|SM-S928B|3120 * 1440|gamehub_android|gamehub_android_Official|samsung|||||||||com.antutu.ABenchMark||qcom"
+GAMEHUB_SECRET_KEY = "all-egg-shell-y7ZatUDk"
