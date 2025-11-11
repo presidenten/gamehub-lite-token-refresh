@@ -40,6 +40,7 @@ Automated token refresh worker that logs into GameHub every 4 hours using OTP au
 **Secret Key**: See `SignUtils.smali` in decompiled APK (search for the secret key constant)
 
 **Process**:
+
 1. Collect parameters: `{captcha, clientparams, email, time}`
 2. Sort alphabetically by key
 3. Join as: `key1=value1&key2=value2&key3=value3`
@@ -47,6 +48,7 @@ Automated token refresh worker that logs into GameHub every 4 hours using OTP au
 5. MD5 hash and convert to lowercase
 
 **Example**:
+
 ```javascript
 // Input parameters
 {
@@ -66,17 +68,20 @@ Automated token refresh worker that logs into GameHub every 4 hours using OTP au
 ## Setup
 
 ### 1. Install Dependencies
+
 ```bash
 cd gamehub-token-refresher
 npm install
 ```
 
 ### 2. Create KV Namespace
+
 ```bash
 npx wrangler kv:namespace create TOKEN_STORE
 ```
 
 Copy the namespace ID and update `wrangler.toml`:
+
 ```toml
 [[kv_namespaces]]
 binding = "TOKEN_STORE"
@@ -99,6 +104,7 @@ GAMEHUB_SECRET_KEY = "[EXTRACT_FROM_SignUtils.smali]"
 ```
 
 **Setting up Mail.tm**:
+
 1. Visit https://mail.tm
 2. Create a temporary email account
 3. Note the email and password
@@ -106,11 +112,13 @@ GAMEHUB_SECRET_KEY = "[EXTRACT_FROM_SignUtils.smali]"
 5. Register the same email with GameHub
 
 ### 4. Deploy
+
 ```bash
 npm run deploy
 ```
 
 ### 5. Trigger Manual Refresh (Optional)
+
 ```bash
 curl -X POST https://gamehub-token-refresher.YOUR_SUBDOMAIN.workers.dev/refresh
 ```
@@ -118,23 +126,29 @@ curl -X POST https://gamehub-token-refresher.YOUR_SUBDOMAIN.workers.dev/refresh
 ## API Endpoints
 
 ### GET /token
+
 Retrieve the current stored token (protected endpoint)
 
 **Authentication**: Requires `X-Worker-Auth: gamehub-internal-token-fetch-2025` header
 
 **Example** (from another Cloudflare Worker):
-```javascript
-const tokenResponse = await fetch('https://gamehub-token-refresher.secureflex.workers.dev/token', {
-  headers: {
-    'X-Worker-Auth': 'gamehub-internal-token-fetch-2025'
-  }
-});
 
-const tokenData = await tokenResponse.json();
-console.log(tokenData.token); // "f589a94e-fec5-4aea-a96b-115ecdfd50d8"
+```javascript
+const tokenResponse = await fetch(
+  'https://gamehub-token-refresher.secureflex.workers.dev/token',
+  {
+    headers: {
+      'X-Worker-Auth': 'gamehub-internal-token-fetch-2025',
+    },
+  },
+)
+
+const tokenData = await tokenResponse.json()
+console.log(tokenData.token) // "f589a94e-fec5-4aea-a96b-115ecdfd50d8"
 ```
 
 **Response**:
+
 ```json
 {
   "token": "f589a94e-fec5-4aea-a96b-115ecdfd50d8",
@@ -144,19 +158,23 @@ console.log(tokenData.token); // "f589a94e-fec5-4aea-a96b-115ecdfd50d8"
 ```
 
 **Security**:
+
 - ✅ Requests with correct header → Token returned
 - ❌ Requests without header → `fuck you` (403 Forbidden)
 - ❌ Requests from browsers → `fuck you` (403 Forbidden)
 
 ### POST /refresh
+
 Manually trigger a token refresh (bypasses cron)
 
 **Example**:
+
 ```bash
 curl -X POST https://gamehub-token-refresher.secureflex.workers.dev/refresh
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -166,14 +184,17 @@ curl -X POST https://gamehub-token-refresher.secureflex.workers.dev/refresh
 ```
 
 **Use Cases**:
+
 - Testing the token refresh flow
 - Debugging authentication issues
 - Immediate token refresh needed
 
 ### GET /
+
 Service info and status
 
 **Response**:
+
 ```
 GameHub Token Refresher
 
@@ -187,6 +208,7 @@ POST /refresh - Manually refresh token
 **Key**: `gamehub_token`
 
 **Value**:
+
 ```json
 {
   "token": "f589a94e-fec5-4aea-a96b-115ecdfd50d8",
@@ -207,6 +229,7 @@ crons = ["0 */4 * * *"]  # Every 4 hours at the top of the hour
 ```
 
 **Schedule**:
+
 - 00:00 UTC
 - 04:00 UTC
 - 08:00 UTC
@@ -225,37 +248,41 @@ The main GameHub API worker fetches tokens from this service:
 // Fetch real token from token-refresher worker
 const tokenResponse = await fetch(`${env.TOKEN_REFRESHER_URL}/token`, {
   headers: {
-    'X-Worker-Auth': 'gamehub-internal-token-fetch-2025'
-  }
-});
+    'X-Worker-Auth': 'gamehub-internal-token-fetch-2025',
+  },
+})
 
 if (tokenResponse.ok) {
-  const tokenData = await tokenResponse.json();
-  const realToken = tokenData.token;
+  const tokenData = await tokenResponse.json()
+  const realToken = tokenData.token
 
   // Replace fake-token with real token
-  bodyJson.token = realToken;
+  bodyJson.token = realToken
 
   // Regenerate signature
-  bodyJson.sign = generateSignature(bodyJson);
+  bodyJson.sign = generateSignature(bodyJson)
 }
 ```
 
 ## Monitoring
 
 ### View Worker Logs in Real-Time
+
 ```bash
 npm run tail
 ```
 
 ### Check Cron Execution History
+
 Visit Cloudflare Dashboard:
+
 1. Go to Workers & Pages
 2. Select `gamehub-token-refresher`
 3. Click **Triggers** tab
 4. View cron execution history
 
 ### Inspect KV Storage
+
 ```bash
 # List all keys
 npx wrangler kv:key list --binding=TOKEN_STORE --remote
@@ -265,6 +292,7 @@ npx wrangler kv:key get gamehub_token --binding=TOKEN_STORE --remote
 ```
 
 ### Test Token Endpoint Protection
+
 ```bash
 # Without auth header (should get "fuck you")
 curl https://gamehub-token-refresher.secureflex.workers.dev/token
@@ -276,13 +304,13 @@ curl -H "X-Worker-Auth: gamehub-internal-token-fetch-2025" \
 
 ## Error Handling
 
-| Error | Action | Recovery |
-|-------|--------|----------|
-| Mail.tm auth fails | Throw error | Retry on next cron (4 hours) |
-| OTP not received | Throw error | Retry on next cron |
-| Invalid OTP | Throw error | Retry on next cron |
-| Login fails | Throw error | Retry on next cron |
-| Network timeout | Automatic retry | Cloudflare handles retry |
+| Error              | Action          | Recovery                     |
+| ------------------ | --------------- | ---------------------------- |
+| Mail.tm auth fails | Throw error     | Retry on next cron (4 hours) |
+| OTP not received   | Throw error     | Retry on next cron           |
+| Invalid OTP        | Throw error     | Retry on next cron           |
+| Login fails        | Throw error     | Retry on next cron           |
+| Network timeout    | Automatic retry | Cloudflare handles retry     |
 
 **All errors are logged to Cloudflare dashboard for debugging**
 
@@ -296,26 +324,30 @@ curl -H "X-Worker-Auth: gamehub-internal-token-fetch-2025" \
 ## Troubleshooting
 
 ### OTP not received
+
 1. Check Mail.tm inbox manually at https://mail.tm
 2. Increase sleep time in `src/index.js`:
    ```javascript
-   await sleep(10000); // 10 seconds instead of 5
+   await sleep(10000) // 10 seconds instead of 5
    ```
 3. Check GameHub email is registered with Mail.tm account
 
 ### Signature validation failed
+
 1. Verify secret key matches the one in `SignUtils.smali` from the decompiled APK
 2. Check parameters are sorted alphabetically
 3. Ensure timestamp is in milliseconds (not seconds)
 4. Test with known working example
 
 ### Cron not running
+
 1. Check Cloudflare dashboard > Workers > Triggers
 2. Verify cron syntax in `wrangler.toml`
 3. Manually trigger via `POST /refresh`
 4. Review worker logs for errors
 
 ### KV storage empty
+
 1. Check namespace ID matches `wrangler.toml`
 2. Use `--remote` flag when checking KV:
    ```bash
@@ -324,6 +356,7 @@ curl -H "X-Worker-Auth: gamehub-internal-token-fetch-2025" \
 3. Manually trigger refresh to populate KV
 
 ### "fuck you" Response
+
 This is normal! It means the security is working. Only the gamehub-api worker with the correct auth header can access tokens.
 
 ## Security Considerations
@@ -337,11 +370,13 @@ This is normal! It means the security is working. Only the gamehub-api worker wi
 ## Development
 
 Run locally (with remote KV):
+
 ```bash
 npm run dev
 ```
 
 Test refresh locally:
+
 ```bash
 curl -X POST http://localhost:8787/refresh
 ```
