@@ -1,0 +1,18 @@
+{
+  "name": "gamehub-lite-token-refresher",
+  "version": "0.0.1",
+  "description": "Automated GameHub token refresher",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "test:watch": "vitest watch",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "wrangler": "^3.0.0"
+  }
+}
