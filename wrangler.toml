@@ -9,7 +9,7 @@ crons = ["0 */4 * * *"]
 # KV namespace for storing tokens
 [[kv_namespaces]]
 binding = "TOKEN_STORE"
-id = "534c5e623d444d0e9ae656a0f04227cb"
+id = "cbd9a8c493214334bc07af5cc636102d"
 
 # Environment variables
 [vars]
