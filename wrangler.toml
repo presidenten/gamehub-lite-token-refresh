@@ -1,4 +1,4 @@
-name = "gamehub-lite-token-refresher"
+name = "gamehub-lite-token-refresh"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 
